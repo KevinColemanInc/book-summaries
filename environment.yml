@@ -37,3 +37,4 @@ dependencies:
     - tensorflow-metal
     - transformers
     - torchvision
+    - pymilvus

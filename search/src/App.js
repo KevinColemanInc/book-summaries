@@ -39,8 +39,9 @@ class App extends Component {
 
   renderSumaries() {
     let summaries = <p>There are no summaries</p>;
+    console.log("renderSumaries.query", this.state.value);
     if (this.state.summaries) {
-      summaries = <Summaries list={this.state.summaries} />;
+      summaries = <Summaries list={this.state.summaries} query={this.state.value} />;
     }
 
     return summaries;
@@ -51,11 +52,13 @@ class App extends Component {
       <div style={{textAlign: ""}}>
         <div className="container">
             <h1>Summary Search</h1>
-                    <input
+            <p>Search</p>
+            <input
                 value={this.state.value}
                 onChange={e => this.onChangeQueryHandler(e)}
                 placeholder="Type something to search"
             />
+            <p>Up to Chapter</p>
                 <input
                 value={this.state.chapter}
                 type="number"

@@ -5,6 +5,7 @@ import os
 import faiss                   # make faiss available
 from transformers import AutoTokenizer, TFAutoModel
 from fastapi.middleware.cors import CORSMiddleware
+from pymilvus import MilvusClient
 
 model_ckpt = "sentence-transformers/multi-qa-mpnet-base-dot-v1"
 tokenizer = AutoTokenizer.from_pretrained(model_ckpt)
@@ -14,6 +15,16 @@ d = 768                           # dimension
 
 index = faiss.IndexFlatL2(d)   # build the index
 index = faiss.IndexIDMap(index)
+
+# Milvus
+endpoint = 'https://in03-a8addf495e0d26b.api.gcp-us-west1.zillizcloud.com'
+token = os.environ.get('zillizcloud_token')
+collection_name = 'booksummaries'
+
+client = MilvusClient(
+    uri=endpoint, # Cluster endpoint obtained from the console
+    token=token
+)
 
 K = 10
 
@@ -57,8 +68,13 @@ def index_summaries(faiss_index):
                             continue
                         vector =  get_embeddings([row[5]])
                         faiss_index.add_with_ids(np.array(vector).astype("float32").reshape(1, d), np.array([counter]))
-                        print('chapter', row[1])
                         vector_id_to_summary[counter] = {"chapter": int(row[1]), "summary": row[5], "chunk_list_id": row[2], "vector": vector}
+                        # res = client.insert(
+                        #     collection_name=collection_name,
+                        #     data={"chapter": int(row[1]), "summary": row[5], "data": vector}
+                        # )
+
+                        # print(res)
                         counter += 1
 
 
@@ -81,4 +97,26 @@ async def query(q: str, chapter: int):
             summary = vector_id_to_summary[i]
             if summary["chapter"] <= chapter:
                 results.append(summary)
+    return results
+
+@app.get("/milvus")
+async def milvus(q: str, chapter: int):
+
+    # create search embedding
+    search_embedding = get_embeddings([q])
+
+    # search vector db
+    res = client.search(
+        collection_name=collection_name,
+        data=[search_embedding],
+        limit=200,
+        output_fields=["summary", "vector", "chapter"]
+    )
+    # filter vector db results
+    results = []
+    for result in res:
+        print('result', len(result))
+        entity = result[0]["entity"]
+        if entity["chapter"] <= chapter:
+            results.append({"summary": entity["summary"], "chapter": entity["chapter"]})
     return results
