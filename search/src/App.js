@@ -38,7 +38,7 @@ class App extends Component {
 
 
   renderSumaries() {
-    let summaries = <h1>There's no summaries</h1>;
+    let summaries = <p>There are no summaries</p>;
     if (this.state.summaries) {
       summaries = <Summaries list={this.state.summaries} />;
     }
@@ -48,22 +48,24 @@ class App extends Component {
 
   render() {
     return (
-      <div>
-      <input
-        value={this.state.value}
-        onChange={e => this.onChangeQueryHandler(e)}
-        placeholder="Type something to search"
-      />
-
-        <input
-          value={this.state.chapter}
-          type="number"
-          min={1}
-          max={1}
-          onChange={e => this.onChangeChapterHandler(e)}
-          placeholder="chapter"
-        />
+      <div style={{textAlign: ""}}>
+        <div className="container">
+            <h1>Summary Search</h1>
+                    <input
+                value={this.state.value}
+                onChange={e => this.onChangeQueryHandler(e)}
+                placeholder="Type something to search"
+            />
+                <input
+                value={this.state.chapter}
+                type="number"
+                min={1}
+                max={1}
+                onChange={e => this.onChangeChapterHandler(e)}
+                placeholder="chapter"
+                />
         {this.renderSumaries()}
+        </div>
       </div>
     );
   }
