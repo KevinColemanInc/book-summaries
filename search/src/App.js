@@ -51,7 +51,7 @@ class App extends Component {
     return (
       <div style={{textAlign: ""}}>
         <div className="container">
-            <h1>Summary Search</h1>
+            <h1>SSS: Summary Semantic Search</h1>
             <p>Search</p>
             <input
                 value={this.state.value}
